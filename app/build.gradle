@@ -14,7 +14,6 @@ android {
                 cppFlags "-frtti -fexceptions"
                 arguments '-DANDROID_TOOLCHAIN=gcc',
                         '-DANDROID_STL=gnustl_static'
-
             }
         }
     }
