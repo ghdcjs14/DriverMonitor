@@ -2,6 +2,7 @@ package kr.ac.kaist.drivermonitor;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
@@ -41,7 +42,8 @@ public class MainActivity extends AppCompatActivity
     private TextToSpeech TTS;
     private long atime = 0;
     private long htime;
-    private long bpm;
+    private long lower_bpm = 0;
+    private long higher_bpm = 130;
 
 
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
@@ -127,7 +129,6 @@ public class MainActivity extends AppCompatActivity
     public void onResume()
     {
         super.onResume();
-
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "onResume :: Internal OpenCV library not found.");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0, this, mLoaderCallback);
@@ -248,35 +249,42 @@ public class MainActivity extends AppCompatActivity
         bResult = detect(cascadeClassifier_face,cascadeClassifier_eye, matInput.getNativeObjAddr(),
                 matResult.getNativeObjAddr());
 
-        Log.d(TAG, "detectFaceResult: " + bResult);
+//        Log.d(TAG, "detectFaceResult: " + bResult);
         // ctime - current time, atime - alarm time
         long ctime = System.currentTimeMillis();
         // 알림음 10초 뒤
-        if (bResult[0] == 0 && ctime - atime > 10000) {
+        Log.d(TAG, "detectFaceResult: " + bResult[1]);
+        if (bResult[0] == 0 && ctime - atime > 50000) {
             TTS.speak("Your face can't be recognized.", TextToSpeech.QUEUE_FLUSH, null);
             atime = System.currentTimeMillis();
+//            htime = ctime;
         }
         else {
-            // 60이하 발생하면 bpm 업데이트
-            if (bResult[1] < 60 && bpm < 60) {
-                bpm = bResult[1];
-                // 1분이 넘어 서맥이고, 알람 울린지 10초가 지났으면,
-                if (ctime - htime > 600000 && ctime - atime > 10000) {
-                    TTS.speak("Warning! bradycardia! your heart rate is under 60", TextToSpeech.QUEUE_FLUSH, null);
-                    atime = System.currentTimeMillis();
+            if (bResult[1] > 1) {
+                // 60이하 발생하면 bpm 업데이트
+                if (bResult[1] < 60 && lower_bpm < 60) {
+                    lower_bpm = bResult[1];
+                    Log.d(TAG, "detectLowbpm " + lower_bpm);
+                    // 1분이 넘어 서맥이고, 알람 울린지 10초가 지났으면,
+                    if (ctime - htime > 4000 && ctime - atime > 20000) {
+                        TTS.speak("Warning! bradycardia! your heart rate is under 60", TextToSpeech.QUEUE_FLUSH, null);
+                        atime = System.currentTimeMillis();
+                    }
                 }
-            }
-            // 120이상 발생하면 bpm 업데이트
-            else if (bResult[1] > 120 && bpm > 120){
-                bpm = bResult[1];
-                // 1분이 넘어 빈맥이고, 알람 울린지 10초가 지났으면,
-                if (ctime - htime > 600000 && ctime - atime > 10000) {
-                    TTS.speak("Warning! tachycardia! your heart rate is over 120", TextToSpeech.QUEUE_FLUSH, null);
-                    atime = System.currentTimeMillis();
+                // 120이상 발생하면 bpm 업데이트
+                else if (bResult[1] > 120 && higher_bpm > 120){
+                    higher_bpm = bResult[1];
+                    Log.d(TAG, "detectHighbpm " + higher_bpm);
+                    // 1분이 넘어 빈맥이고, 알람 울린지 10초가 지났으면,
+                    if (ctime - htime > 4000 && ctime - atime > 20000) {
+                        TTS.speak("Warning! tachycardia! your heart rate is over 120", TextToSpeech.QUEUE_FLUSH, null);
+                        atime = System.currentTimeMillis();
+                    }
                 }
-            }
-            else {
-                htime = ctime;
+                else {
+                    htime = ctime;
+                }
+
             }
 
         }

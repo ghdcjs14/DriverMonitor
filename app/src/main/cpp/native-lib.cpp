@@ -62,7 +62,6 @@ extern "C" {
         // TODO
         Mat &img_input = *(Mat *) matAddrInput;
         Mat &img_result = *(Mat *) matAddrResult;
-        double bpm = 0;
         img_result = img_input.clone();
 
         std::vector<Rect> faces;
@@ -87,7 +86,8 @@ extern "C" {
         Scalar meanR, meanG, meanB;
         queue<double> greenTraceQueue;
         Mat normGreen, dftGreen;
-
+        double bpm = 0;
+        //faces.size()
         for (int i = 0; i < faces.size(); i++) {
             double real_facesize_x = faces[i].x / resizeRatio;
             double real_facesize_y = faces[i].y / resizeRatio;
@@ -132,11 +132,11 @@ extern "C" {
             minMaxLoc(abs(magGreen), &minVal, &maxVal);
 
             // 5. Max magnitude를 이용하여 주파수를 얻고 bpm으로 바꾼다.
-            double fps = 5;
+            double fps = 1.8;
             double feq = 0; // 초기 주파수 값
             double tempFeq = maxVal * fps / (dftGreen.rows * dftGreen.cols);
 
-            if(tempFeq >= 0.75 && tempFeq >= 4) {
+            if(tempFeq >= 0.75 && tempFeq <= 4) {
                 // 초기 주파수가 측정 안되어 있을 때, 이전 bpm과 차이가 12bpm 이상 나는 것은 무시
                 if(feq == 0 || abs(feq-tempFeq)*60 <= 12) {
                     feq = tempFeq;
@@ -147,13 +147,9 @@ extern "C" {
             // 6. bpm을 화면에 출력한다.
             meanval0 = meanval0 * 60;
             char ss[256];
-            sprintf(ss,"%.2f",tempFeq);
-            putText(img_result, ss
-                    , Point(real_facesize_x + real_facesize_width + 10, real_facesize_y)
-                    , FONT_HERSHEY_SIMPLEX
-                    , 2, Scalar(255,255,255), 2);
 
-            sprintf(ss,"%.2f",feq);
+
+            sprintf(ss,"%.0f",bpm);
             putText(img_result, ss
                     , Point(real_facesize_x + real_facesize_width + 10, real_facesize_y+50)
                     , FONT_HERSHEY_SIMPLEX
