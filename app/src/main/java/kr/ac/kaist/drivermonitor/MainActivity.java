@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Environment;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,17 +31,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity
-        implements CameraBridgeViewBase.CvCameraViewListener2 {
+        implements CameraBridgeViewBase.CvCameraViewListener2, OnInitListener {
 
     private static final String TAG = "opencv";
     private CameraBridgeViewBase mOpenCvCameraView;
     private Mat matInput;
     private Mat matResult;
+    //TTS
+    private TextToSpeech TTS;
+    private long atime = 0;
+    private long htime;
+    private long bpm;
+
 
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
     public static native long loadCascade(String cascadeFileName);
-    public static native int detect(long cascadeClassifier_face,
+    public static native long[] detect(long cascadeClassifier_face,
                                      long cascadeClassifier_eye,
                                      long matAddrInput, long matAddrResult);
 
@@ -103,6 +111,8 @@ public class MainActivity extends AppCompatActivity
         mOpenCvCameraView.setCameraIndex(1); // front-camera(1),  back-camera(0)
 
         mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        //TTS
+        TTS = new TextToSpeech(this, this);
     }
 
     @Override
@@ -129,6 +139,8 @@ public class MainActivity extends AppCompatActivity
 
     public void onDestroy() {
         super.onDestroy();
+        //TTS
+        TTS.shutdown();
 
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
@@ -231,12 +243,43 @@ public class MainActivity extends AppCompatActivity
         //ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
         Core.flip(matInput, matInput, 1);
 
-        int bFaceResult = 0;
+        long[] bResult = {0, 0};
 
-        bFaceResult = detect(cascadeClassifier_face,cascadeClassifier_eye, matInput.getNativeObjAddr(),
+        bResult = detect(cascadeClassifier_face,cascadeClassifier_eye, matInput.getNativeObjAddr(),
                 matResult.getNativeObjAddr());
 
-        Log.d(TAG, "detectFaceResult: " + bFaceResult);
+        Log.d(TAG, "detectFaceResult: " + bResult);
+        // ctime - current time, atime - alarm time
+        long ctime = System.currentTimeMillis();
+        // 알림음 10초 뒤
+        if (bResult[0] == 0 && ctime - atime > 10000) {
+            TTS.speak("Your face can't be recognized.", TextToSpeech.QUEUE_FLUSH, null);
+            atime = System.currentTimeMillis();
+        }
+        else {
+            // 60이하 발생하면 bpm 업데이트
+            if (bResult[1] < 60 && bpm < 60) {
+                bpm = bResult[1];
+                // 1분이 넘어 서맥이고, 알람 울린지 10초가 지났으면,
+                if (ctime - htime > 600000 && ctime - atime > 10000) {
+                    TTS.speak("Warning! bradycardia! your heart rate is under 60", TextToSpeech.QUEUE_FLUSH, null);
+                    atime = System.currentTimeMillis();
+                }
+            }
+            // 120이상 발생하면 bpm 업데이트
+            else if (bResult[1] > 120 && bpm > 120){
+                bpm = bResult[1];
+                // 1분이 넘어 빈맥이고, 알람 울린지 10초가 지났으면,
+                if (ctime - htime > 600000 && ctime - atime > 10000) {
+                    TTS.speak("Warning! tachycardia! your heart rate is over 120", TextToSpeech.QUEUE_FLUSH, null);
+                    atime = System.currentTimeMillis();
+                }
+            }
+            else {
+                htime = ctime;
+            }
+
+        }
 
         return matResult;
     }
@@ -288,6 +331,11 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "read_cascade_file:");
 
         cascadeClassifier_eye = loadCascade( "haarcascade_eye_tree_eyeglasses.xml");
+    }
+
+    @Override
+    public void onInit(int status) {
+
     }
 
 

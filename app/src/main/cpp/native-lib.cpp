@@ -52,7 +52,7 @@ extern "C" {
         return scale;
     }
 
-    JNIEXPORT int JNICALL
+    JNIEXPORT jlongArray JNICALL
     Java_kr_ac_kaist_drivermonitor_MainActivity_detect(JNIEnv *env, jclass type,
                                                        jlong cascadeClassifier_face,
                                                        jlong cascadeClassifier_eye,
@@ -62,7 +62,7 @@ extern "C" {
         // TODO
         Mat &img_input = *(Mat *) matAddrInput;
         Mat &img_result = *(Mat *) matAddrResult;
-
+        double bpm = 0;
         img_result = img_input.clone();
 
         std::vector<Rect> faces;
@@ -142,7 +142,7 @@ extern "C" {
                     feq = tempFeq;
                 }
             }
-            double bpm = feq * 60;
+            bpm = feq * 60;
 
             // 6. bpm을 화면에 출력한다.
             meanval0 = meanval0 * 60;
@@ -160,10 +160,14 @@ extern "C" {
                     , 2, Scalar(255,0,255), 2);
 
 
-
         }
-
-        return faces.size();
+        jlongArray ret = env->NewLongArray(2);
+        jlong *clongArray = new jlong[2];
+        clongArray[0] = faces.size();
+        clongArray[1] = bpm;
+        env->SetLongArrayRegion(ret, 0, 2, clongArray);
+        delete [] clongArray;
+        return ret;
 
     }
 
