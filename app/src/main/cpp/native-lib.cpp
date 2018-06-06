@@ -52,7 +52,7 @@ extern "C" {
         return scale;
     }
 
-    JNIEXPORT void JNICALL
+    JNIEXPORT int JNICALL
     Java_kr_ac_kaist_drivermonitor_MainActivity_detect(JNIEnv *env, jclass type,
                                                        jlong cascadeClassifier_face,
                                                        jlong cascadeClassifier_eye,
@@ -167,6 +167,8 @@ extern "C" {
 
 
         }
+
+        return faces.size();
 
     }
 

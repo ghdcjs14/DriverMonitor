@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
     public static native long loadCascade(String cascadeFileName);
-    public static native void detect(long cascadeClassifier_face,
+    public static native int detect(long cascadeClassifier_face,
                                      long cascadeClassifier_eye,
                                      long matAddrInput, long matAddrResult);
 
@@ -231,9 +231,12 @@ public class MainActivity extends AppCompatActivity
         //ConvertRGBtoGray(matInput.getNativeObjAddr(), matResult.getNativeObjAddr());
         Core.flip(matInput, matInput, 1);
 
+        int bFaceResult = 0;
 
-        detect(cascadeClassifier_face,cascadeClassifier_eye, matInput.getNativeObjAddr(),
+        bFaceResult = detect(cascadeClassifier_face,cascadeClassifier_eye, matInput.getNativeObjAddr(),
                 matResult.getNativeObjAddr());
+
+        Log.d(TAG, "detectFaceResult: " + bFaceResult);
 
         return matResult;
     }
