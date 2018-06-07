@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 // 120이상 발생하면 bpm 업데이트
-                else if (bResult[1] > 120 && higher_bpm > 120){
+                else if (bResult[1] > 100 && higher_bpm > 100){
                     higher_bpm = bResult[1];
                     Log.d(TAG, "detectHighbpm " + higher_bpm);
                     // 1분이 넘어 빈맥이고, 알람 울린지 10초가 지났으면,

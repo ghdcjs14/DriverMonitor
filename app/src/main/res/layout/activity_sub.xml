@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Sub"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SubActivity"
+    tools:layout_editor_absoluteY="25dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="161dp">
+
+        <TextView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:ems="23"
+            android:gravity="center_horizontal"
+            android:inputType="textMultiLine"
+            android:singleLine="false"
+            android:text="DriverMonitor"
+            android:textSize="40sp"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="58dp" />
+
+
+        <TextView
+            android:id="@+id/warning"
+            android:layout_width="wrap_content"
+            android:layout_height="53dp"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal"
+            android:ems="18"
+            android:gravity="center_horizontal"
+            android:inputType="textMultiLine"
+            android:text="DO NOT operate while driving!\n
+    DO NOT trust too much!"
+            android:textColor="#ff0000"
+            android:textSize="18sp"
+            android:visibility="visible"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="17dp"
+            tools:layout_editor_absoluteY="143dp" />
+
+        <TextView
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:breakStrategy="high_quality"
+            android:ems="15"
+            android:gravity="center_horizontal"
+            android:hyphenationFrequency="normal"
+            android:inputType="textMultiLine"
+            android:text="1. Click the Start button to automatically find your faces.\n
+
+    2. If your face is not detected, warning message will be heard.\n
+
+    3. f the heart rate remains above 100 or 60 for more than 50 seconds, you will hear a warning message.\n"
+            android:textSize="15sp"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="73dp"
+            tools:layout_editor_absoluteY="235dp" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Start!"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="161dp"
+            tools:layout_editor_absoluteY="492dp" />
+
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>
